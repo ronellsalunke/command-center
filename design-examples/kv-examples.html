@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KV UI examples</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  .value-blend { border: 1px solid transparent; background: transparent; }
+  .value-blend:hover { background: #f8fafc; border-color: #e2e8f0; }
+  .value-blend:focus { background: #fff; border-color: #3b82f6; outline: none; box-shadow: 0 0 0 3px rgba(59,130,246,.15); }
+  .row-actions { opacity: 0; }
+  .kv-row:hover .row-actions, .kv-row:focus-within .row-actions, .kv-row.selected .row-actions { opacity: 1; }
+  .kv-row.selected { outline: 2px solid #3b82f6; outline-offset: -2px; }
+  @media (prefers-color-scheme: dark) {
+    .value-blend:hover { background: #1e293b; border-color: #334155; }
+    .value-blend:focus { background: #0f172a; }
+  }
+</style>
+</head>
+<body class="bg-slate-100 text-slate-900 min-h-screen">
+<div class="max-w-3xl mx-auto p-6 space-y-10">
+<div>
+<h1 class="text-xl font-bold">KV UI examples</h1>
+<p class="text-sm text-slate-600">Keyboard: <kbd class="bg-white border rounded px-1">j</kbd>/<kbd class="bg-white border rounded px-1">k</kbd> move, <kbd class="bg-white border rounded px-1">e</kbd> edit, <kbd class="bg-white border rounded px-1">c</kbd> copy, <kbd class="bg-white border rounded px-1">/</kbd> search. Click a value to edit. It looks like text until hover or focus.</p>
+<input id="search" placeholder="Search fields  ( / )" class="mt-3 w-full border rounded-lg px-3 py-2 bg-white" />
+</div>
+
+<section>
+<h2 class="font-semibold mb-2">A. Inline rows — recommended</h2>
+<p class="text-sm text-slate-600 mb-3">Key fixed left. Value blends in. Copy and Open appear on hover. Best for repo, package name, docs mix.</p>
+<div id="variant-a" class="bg-white rounded-xl border divide-y overflow-hidden">
+</div>
+</section>
+
+<section>
+<h2 class="font-semibold mb-2">B. Link cards</h2>
+<p class="text-sm text-slate-600 mb-3">Best when most values are URLs. Icon initial, domain line, copy plus open.</p>
+<div id="variant-b" class="grid sm:grid-cols-2 gap-3"></div>
+</section>
+
+<section>
+<h2 class="font-semibold mb-2">C. Dense table</h2>
+<p class="text-sm text-slate-600 mb-3">Most Notion-like. Muted key column, inline value, row hover actions.</p>
+<div class="bg-white rounded-xl border overflow-hidden">
+<table class="w-full text-sm">
+<tbody id="variant-c"></tbody>
+</table>
+</div>
+</section>
+</div>
+
+<script>
+const fields = [
+  { key: "github repo", value: "https://github.com/acme/firstapp", kind: "GH" },
+  { key: "figma file", value: "https://figma.com/file/abc123/firstapp", kind: "Fg" },
+  { key: "android package", value: "com.myapp.firstapp", kind: "Ap" },
+  { key: "docs", value: "https://docs.acme.dev/firstapp/setup", kind: "Dc" },
+];
+function isUrl(v) { try { const u = new URL(v); return u.protocol === "http:" || u.protocol === "https:"; } catch { return false; } }
+function domain(v) { try { return new URL(v).hostname; } catch { return ""; } }
+
+const a = document.getElementById("variant-a");
+fields.forEach((f, i) => {
+  const row = document.createElement("div");
+  row.className = "kv-row flex items-center gap-2 px-3 py-2";
+  row.tabIndex = 0;
+  row.dataset.index = i;
+  row.innerHTML =
+    '<span class="w-32 shrink-0 text-xs font-semibold uppercase tracking-wide text-slate-500">' + f.key + '</span>' +
+    '<input class="value-blend flex-1 rounded-md px-2 py-1.5 text-sm" value="' + f.value.replace(/"/g, "&quot;") + '" aria-label="' + f.key + '" />' +
+    '<span class="row-actions flex gap-1 transition">' +
+    '<button data-act="copy" class="text-xs border rounded-md px-2 py-1 bg-white hover:bg-slate-50" title="Copy (c)">Copy</button>' +
+    (isUrl(f.value) ? '<a href="' + f.value + '" target="_blank" rel="noreferrer" class="text-xs border rounded-md px-2 py-1 bg-white hover:bg-slate-50">Open</a>' : '') +
+    '</span>';
+  a.appendChild(row);
+});
+
+const b = document.getElementById("variant-b");
+fields.forEach((f) => {
+  const card = document.createElement("div");
+  card.className = "bg-white border rounded-xl p-3 flex gap-3 items-center";
+  card.innerHTML =
+    '<span class="w-9 h-9 shrink-0 rounded-lg bg-slate-900 text-white grid place-items-center text-xs font-bold">' + f.kind + '</span>' +
+    '<span class="flex-1 min-w-0"><span class="block text-xs uppercase tracking-wide text-slate-500 font-semibold">' + f.key + '</span>' +
+    '<span class="block text-sm truncate">' + f.value + '</span>' +
+    '<span class="block text-xs text-slate-400 truncate">' + (domain(f.value) || "plain text") + '</span></span>' +
+    '<span class="flex flex-col gap-1"><button data-copy="' + f.value.replace(/"/g, "&quot;") + '" class="text-xs border rounded-md px-2 py-1 hover:bg-slate-50">Copy</button>' +
+    (isUrl(f.value) ? '<a href="' + f.value + '" target="_blank" rel="noreferrer" class="text-xs border rounded-md px-2 py-1 text-center hover:bg-slate-50">Open</a>' : '') + '</span>';
+  b.appendChild(card);
+});
+
+const c = document.getElementById("variant-c");
+fields.forEach((f) => {
+  const tr = document.createElement("tr");
+  tr.className = "kv-row border-t first:border-0 hover:bg-slate-50";
+  tr.innerHTML =
+    '<td class="px-3 py-2 text-slate-500 w-36">' + f.key + '</td>' +
+    '<td class="px-3 py-2"><input class="value-blend w-full rounded px-1 py-1 text-sm bg-transparent" value="' + f.value.replace(/"/g, "&quot;") + '" /></td>' +
+    '<td class="px-3 py-2 w-24 text-right"><button data-act="copy" class="row-actions text-xs border rounded px-2 py-1 bg-white">Copy</button></td>';
+  c.appendChild(tr);
+});
+
+document.addEventListener("click", async (e) => {
+  const btn = e.target.closest("[data-act=copy],[data-copy]");
+  if (!btn) return;
+  const row = e.target.closest(".kv-row");
+  const input = row ? row.querySelector("input") : null;
+  const text = btn.getAttribute("data-copy") || (input ? input.value : "");
+  try { await navigator.clipboard.writeText(text); btn.textContent = "Copied"; setTimeout(() => btn.textContent = "Copy", 1200); } catch {}
+});
+
+let selected = 0;
+const rows = () => [...document.querySelectorAll("#variant-a .kv-row")];
+function select(i) {
+  const list = rows();
+  if (!list.length) return;
+  selected = (i + list.length) % list.length;
+  list.forEach((r, n) => r.classList.toggle("selected", n === selected));
+  list[selected].scrollIntoView({ block: "nearest" });
+}
+select(0);
+document.addEventListener("keydown", async (e) => {
+  if (e.key === "/") { e.preventDefault(); document.getElementById("search").focus(); return; }
+  if (document.activeElement && ["INPUT", "TEXTAREA"].includes(document.activeElement.tagName) && ["j", "k", "c", "e"].includes(e.key)) {
+    if (document.activeElement.id === "search") return;
+  }
+  const list = rows();
+  if (!list.length) return;
+  if (e.key === "j") select(selected + 1);
+  if (e.key === "k") select(selected - 1);
+  if (e.key === "e") list[selected].querySelector("input").focus();
+  if (e.key === "c") { const v = list[selected].querySelector("input").value; try { await navigator.clipboard.writeText(v); } catch {} }
+});
+document.getElementById("search").addEventListener("input", (e) => {
+  const q = e.target.value.toLowerCase();
+  document.querySelectorAll("#variant-a .kv-row").forEach((r) => {
+    r.style.display = r.textContent.toLowerCase().includes(q) ? "" : "none";
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+.value-blend {
+  border: 1px solid transparent;
+  background: transparent;
+}
+.value-blend:hover {
+  background: var(--color-neutral-100);
+  border-color: var(--color-neutral-200);
+}
+.value-blend:focus {
+  background: white;
+  border-color: var(--color-neutral-400);
+  outline: none;
+  box-shadow: 0 0 0 3px rgb(0 0 0 / 0.08);
+}
+.kv-row .row-actions {
+  opacity: 1;
+}
+.kv-row.selected {
+  outline: 1px solid var(--color-neutral-400);
+  outline-offset: -1px;
+}
+.kv-row.drop-target {
+  outline: 1px dashed var(--color-neutral-400);
+  outline-offset: -1px;
+}
+button:focus-visible, a:focus-visible {
+  outline: 2px solid var(--color-neutral-500);
+  outline-offset: 2px;
+}
+@media (width < 640px) {
+  .field-display, .field-editor, .field-add {
+    flex-wrap: wrap;
+  }
+  .field-display .field-value {
+    flex: 0 0 100%;
+  }
+  .field-display .row-actions {
+    max-width: 100%;
+    flex-wrap: wrap;
+  }
+  .field-editor input, .field-add input {
+    width: 100%;
+    min-width: 0;
+    flex: 0 0 100%;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  .value-blend:hover {
+    background: var(--color-neutral-900);
+    border-color: var(--color-neutral-800);
+  }
+  .value-blend:focus {
+    background: var(--color-neutral-950);
+    border-color: var(--color-neutral-600);
+    box-shadow: 0 0 0 3px rgb(255 255 255 / 0.08);
+  }
+  .kv-row.selected {
+    outline-color: var(--color-neutral-600);
+  }
+}
