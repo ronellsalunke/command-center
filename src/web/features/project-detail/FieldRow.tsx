@@ -159,7 +159,7 @@ export function FieldRow({
   return (
     <article
       data-field-id={field.id}
-      className={`kv-row field-display flex items-center gap-2 rounded-xl border border-neutral-200 bg-white p-2 dark:border-neutral-800 dark:bg-neutral-900${selected ? " selected" : ""}${dropTarget ? " drop-target" : ""}`}
+      className={`kv-row field-display flex min-w-0 max-w-full items-center gap-2 rounded-xl border border-neutral-200 bg-white p-2 dark:border-neutral-800 dark:bg-neutral-900${selected ? " selected" : ""}${dropTarget ? " drop-target" : ""}`}
       onClick={() => onSelect(index)}
       onDragOver={(event) => {
         event.preventDefault();
